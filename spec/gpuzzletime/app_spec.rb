@@ -65,4 +65,24 @@ describe Gpuzzletime::App do
 
   # it 'can open the timelog in an editor'
   # it 'can open a parser-script in an editor'
+
+  context 'adjacent simliar entries' do
+    let(:timelog) do
+      <<~TIMELOG
+        2018-03-03 14:00: start
+        2018-03-03 15:34: 23456: debug -- network
+        2018-03-03 16:45: 23456: debug -- network
+      TIMELOG
+    end
+
+    it 'are joined' do
+      expect(subject).to receive(:read).at_least(:once).and_return(timelog)
+      subject.send(:fill_entries, :show)
+      entries = subject.send(:entries)
+
+      expect(entries.keys).to be_one # day
+      expect(entries.first[1]).to be_one # entry
+      expect(entries.first[1]).to match(/23456: debug/)
+    end
+  end
 end
